@@ -37,7 +37,7 @@ int main(int argc, char **argv) {
     const char *word = argv[2];
     const char *meaning = argv[3];
 
-    bool success = add_word(word, meaning);
+    bool success = add_entry(word, meaning);
 
     if (!success) {
       fprintf(stderr, ERR_ADD_FAILURE);
@@ -56,7 +56,7 @@ int main(int argc, char **argv) {
 
     const char *word = argv[2];
 
-    bool success = delete_word(word);
+    bool success = delete_entry(word);
 
     if (!success) {
       fprintf(stderr, ERR_DELETE_FAILURE);
@@ -80,7 +80,7 @@ int main(int argc, char **argv) {
 
     const char *word = argv[2];
 
-    Entry *e = search_word(word);
+    Entry *e = search_entry(word);
 
     if (e == NULL) {
       printf("Unable to find the word.\n");
