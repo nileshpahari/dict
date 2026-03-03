@@ -1,16 +1,10 @@
 #ifndef CLI_H
 #define CLI_H
 
-#include <stdbool.h>
+#include "hashmap.h"
 
-void show_help();
+int cmd_mode(int argc, char** argv, HashMap* dict);
 
-bool add_entry(const char *word, const char *meaning);
-
-bool delete_entry(const char *word);
-
-const char* search_entry(const char *word);
-
-void show_entry(const char* word, const char* meaning);
+int interactive_mode(HashMap* dict);
 
 #endif
