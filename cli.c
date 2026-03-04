@@ -3,6 +3,7 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdio.h>
+#include <string.h>
 
 #define ERR_TOO_MANY "Too many arguments.\n"
 #define ERR_TOO_FEW "Too few arguments.\n"
@@ -11,13 +12,14 @@
 
 #define MSG_ADD_SUCCESS "Word added successfully.\n"
 #define MSG_DELETE_SUCCESS "Word deleted successfully.\n"
+#define MSG_NOT_FOUND "Word not found.\n"
 
 static int show_help() {
-  printf("\n  Usage:\n\n"
-         "    dict add <word> <meaning>\n\n"
-         "    dict delete <word>\n\n"
-         "    dict search <word>\n\n"
-         "    dict help\n\n");
+  printf("\nUsage:\n\n"
+         "dict add <word> <meaning>\n\n"
+         "dict delete <word>\n\n"
+         "dict search <word>\n\n"
+         "dict help\n\n");
   return 0;
 }
 
@@ -71,7 +73,7 @@ static int search_entry(int argc, char **argv, HashMap *hm) {
   const char *meaning = hm_get(word, hm);
 
   if (meaning == NULL) {
-    printf("Unable to find the word.\n");
+    printf(MSG_NOT_FOUND);
   } else {
     printf("\n  Word: %s\n\n"
            "  Meaning: %s\n\n",
@@ -81,7 +83,76 @@ static int search_entry(int argc, char **argv, HashMap *hm) {
   return 0;
 }
 
-void handle_cmd(HashMap *hm, char *line) { line[strcspn(line, "\n")] = 0; }
+int handle_cmd(HashMap *hm, char *line) {
+
+  char *cmd = strtok(line, " ");
+  if (!cmd)
+    return 0;
+
+  if (strcmp(cmd, "help") == 0) {
+    return show_help();
+  }
+
+  if (strcmp(cmd, "add") == 0) {
+
+    char *word = strtok(NULL, " ");
+    char *meaning = strtok(NULL, "");
+
+    if (!word || !meaning) {
+      printf("\nUsage: add <word> <meaning>\n\n");
+      return 0;
+    }
+
+    if (!hm_add(word, meaning, hm))
+      printf(ERR_ADD_FAILURE);
+    else
+      printf(MSG_ADD_SUCCESS);
+
+    return 0;
+  }
+
+  if (strcmp(cmd, "search") == 0) {
+
+    char *word = strtok(NULL, " ");
+
+    if (!word) {
+      printf("Usage: search <word>\n");
+      return 0;
+    }
+
+    const char *meaning = hm_get(word, hm);
+
+    if (!meaning) {
+      printf(MSG_NOT_FOUND);
+    } else {
+      printf("\n  Word: %s\n\n"
+             "  Meaning: %s\n\n",
+             word, meaning);
+    }
+
+    return 0;
+  }
+
+  if (strcmp(cmd, "delete") == 0) {
+
+    char *word = strtok(NULL, " ");
+
+    if (!word) {
+      printf("Usage: delete <word>\n");
+      return 0;
+    }
+
+    if (!hm_delete(word, hm))
+      printf(MSG_NOT_FOUND);
+    else
+      printf(MSG_DELETE_SUCCESS);
+
+    return 0;
+  }
+
+  printf("Unknown command.\n");
+  return 0;
+}
 
 int interactive_mode(HashMap *dict) {
   printf("\nUsage: <command> <argument>\n"
@@ -94,11 +165,19 @@ int interactive_mode(HashMap *dict) {
     printf(">>> ");
     size_t read = getline(&line, &len, stdin);
 
-    if (read == -1)
-      return 1;
+    if (read == -1) {
+      break;
+    }
+
+    line[strcspn(line, "\n")] = 0;
+
+    if (strcmp(line, "exit") == 0) {
+      break;
+    }
 
     handle_cmd(dict, line);
   }
+  free(line);
   return 0;
 }
 
