@@ -3,6 +3,7 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 
 #define ERR_TOO_MANY "Too many arguments.\n"
@@ -24,15 +25,30 @@ static int show_help() {
 }
 
 static int add_entry(int argc, char **argv, HashMap *hm) {
-  if (argc != 4) {
-    fprintf(stderr, argc > 4 ? ERR_TOO_MANY : ERR_TOO_FEW);
+  if (argc < 4) {
+    fprintf(stderr, ERR_TOO_FEW);
     return 1;
   }
 
   const char *word = argv[2];
-  const char *meaning = argv[3];
+
+  size_t len = 0;
+  for (int i = 3; i < argc; i++)
+    len += strlen(argv[i]) + 1;
+
+  char *meaning = malloc(len);
+  if (!meaning) {
+    fprintf(stderr, ERR_ADD_FAILURE);
+    return 1;
+  }
+  meaning[0] = '\0';
+  for (int i = 3; i < argc; i++) {
+    if (i > 3) strcat(meaning, " ");
+    strcat(meaning, argv[i]);
+  }
 
   bool success = hm_add(word, meaning, hm);
+  free(meaning);
 
   if (!success) {
     fprintf(stderr, ERR_ADD_FAILURE);
