@@ -215,20 +215,8 @@ int cmd_mode(int argc, char **argv, HashMap *dict) {
   else if (strcmp(cmd, "search") == 0) {
     status = search_entry(argc, argv, dict);
   }
-  // else if (strcmp(cmd, "reset") == 0) {
-  //   return reset_dict(argc, argv);
-  // }
   else {
     status = show_help();
   }
   return status;
 }
-
-// int reset_dict(int argc, char** argv) {
-// 	if(argc>2) {
-// 		fprintf(stderr, ERR_TOO_MANY);
-// 		return 1;
-// 	}
-//
-// 	// file clean logic
-// }
